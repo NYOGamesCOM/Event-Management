@@ -1,0 +1,868 @@
+<html><head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="<%=domain%>/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BanKai Meet & Greet</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #121212; /* Very dark background */
+          color: #E0E0E0; /* Light text color */
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          background-color: #1F1F1F; /* Darker background */
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+          padding: 2rem;
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .header-image {
+          width: 100%;
+          height: 300px;
+          background-image: url('https://i.imgur.com/Z5pp50k.jpeg');
+          background-size: cover;
+          background-position: center;
+          border-radius: 8px 8px 0 0;
+          margin-bottom: 2rem;
+          position: relative;
+        }
+        .header-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .header-title {
+          color: #FFFFFF; /* White text */
+          font-size: 2.5rem;
+          text-align: center;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        h1, h2, h3 {
+          color: #E0E0E0; /* Light text color */
+          margin-bottom: 1rem;
+        }
+        form {
+          display: flex;
+          margin-bottom: 1rem;
+        }
+        input[type="text"], input[type="number"], select {
+          flex-grow: 1;
+          padding: 0.5rem;
+          font-size: 1rem;
+          border: 1px solid #333333; /* Dark border */
+          border-radius: 4px;
+          margin-right: 0.5rem;
+          background-color: #2C2C2C; /* Dark input background */
+          color: #E0E0E0; /* Light text color */
+        }
+        button {
+          background-color: #1E88E5; /* Dark Blue for buttons */
+          color: #E0E0E0; /* Light text color */
+          border: none;
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          border-radius: 4px;
+        }
+        button:hover {
+          background-color: #1565C0; /* Darker blue on hover */
+        }
+        ul {
+          list-style-type: none;
+          padding: 0;
+        }
+        li {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background-color: #1F1F1F; /* Dark item background */
+          margin-bottom: 0.5rem;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          transition: background-color 0.3s;
+        }
+        li:hover {
+          background-color: #333333; /* Slightly lighter on hover */
+        }
+        .remove-btn {
+          background-color: #CF6679; /* Remove button color */
+        }
+        .remove-btn:hover {
+          background-color: #B00020; /* Darker on hover */
+        }
+        .flex-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2rem;
+        }
+        .flex-item {
+          flex: 1;
+          min-width: 300px;
+        }
+        .chart-container {
+          width: 100%;
+          max-width: 600px;
+          margin: 2rem auto;
+        }
+        .airbnb-details {
+          margin-top: 1rem;
+          padding: 1rem;
+          background-color: #2C2C2C; /* Dark details background */
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+        .room-list {
+          margin-left: 1rem;
+        }
+        .room-item {
+          display: flex;
+          flex-direction: column;
+          padding: 1rem;
+          background-color: #2A2A2A; /* Darker room background */
+          margin-bottom: 1rem;
+          border-radius: 6px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.6);
+          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+        .room-item:hover {
+          box-shadow: 0 3px 6px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.6);
+        }
+        .room-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid #444444; /* Dark border */
+          gap: 0.5rem;
+        }
+        .room-name {
+          flex: 1;
+          color: #1E88E5; /* Dark blue text */
+        }
+        .room-occupants {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+        }
+        .occupant-tag {
+          background-color: #1E88E5; /* Dark blue tag */
+          color: #E0E0E0; /* Light text color */
+          padding: 0.3rem 0.6rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          transition: background-color 0.3s;
+        }
+        .occupant-tag:hover {
+          background-color: #1565C0; /* Darker blue on hover */
+        }
+        .remove-from-room {
+          background: none;
+          border: none;
+          color: #1E88E5; /* Dark blue color */
+          font-size: 1.2rem;
+          cursor: pointer;
+          padding: 0 0 0 0.3rem;
+          margin-left: 0.3rem;
+        }
+        .airbnb-name {
+          font-size: 1.4rem;
+          font-weight: bold;
+          color: #1E88E5; /* Dark blue */
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid #1E88E5; /* Dark blue border */
+        }
+        .room-select {
+          padding: 0.3rem;
+          border-radius: 4px;
+          border: 1px solid #444444; /* Dark border */
+          background-color: #2C2C2C; /* Dark input background */
+          color: #1E88E5; /* Dark blue text */
+          font-size: 0.9rem;
+        }
+        .visual-representation-header {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 2rem;
+        }
+        .visual-representation-title {
+          font-size: 2rem;
+          color: #1E88E5; /* Dark blue */
+          margin: 0;
+          font-weight: 700;
+        }
+        .visual-representation-subtitle {
+          font-size: 1.2rem;
+          color: #B0B0B0; /* Light grey */
+          margin: 0;
+          font-weight: 300;
+        }
+        .visual-representation {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.5rem;
+          margin-top: 2rem;
+          padding: 1rem;
+        }
+        .house {
+          background-color: #2C2C2C; /* Darker background */
+          border-radius: 12px;
+          box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+          transition: all 0.3s ease;
+          padding: 1.5rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .house:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        }
+        .house-image {
+          width: 100%;
+          height: 200px;
+          background-size: cover;
+          background-position: center;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+        }
+        .rooms {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      .room {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+      }
+      .room:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      .room-image {
+        width: 100%;
+        height: 100px;
+        background-size: cover;
+        background-position: center;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .occupants {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .occupant {
+        display: flex;
+        align-items: center;
+        background-color: #3498db;
+        color: white;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+      }
+      .occupant:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+      }
+      .occupant-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        background-size: cover;
+        background-position: center;
+      }
+        .price-info {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #1E88E5; /* Dark blue */
+          margin-top: 1rem;
+        }
+        .friend-counter {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #1E88E5; /* Dark blue */
+          margin-bottom: 1rem;
+        }
+        .airbnb-counter {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: #1E88E5; /* Dark blue */
+          margin-bottom: 1rem;
+        }
+        .friend-item {
+          background-color: #1F1F1F; /* Dark item background */
+          border-radius: 4px;
+          padding: 0.5rem 1rem;
+          margin-bottom: 0.5rem;
+          transition: background-color 0.3s;
+        }
+        .friend-item:hover {
+          background-color: #333333; /* Slightly lighter on hover */
+        }
+        .friend-name {
+          color: #1E88E5; /* Dark blue */
+        }
+        .friend-assignment {
+          color: #B0B0B0; /* Light grey */
+        }
+        .drag-handle {
+          color: #95a5a6; /* Grey for drag handle */
+          cursor: move;
+          margin-right: 0.5rem;
+        }
+        .room-drop-zone {
+          min-height: 50px;
+          border: 2px dashed #444444; /* Dark border */
+          border-radius: 4px;
+          margin-top: 0.5rem;
+          padding: 0.5rem;
+          transition: background-color 0.3s;
+        }
+        .room-drop-zone.dragover {
+          background-color: #1F1F1F; /* Slightly lighter on drag */
+        }
+        .remove-room {
+        background-color: #f33412;
+        color: white;
+        border: none;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+      }
+      .remove-room:hover {
+        background-color: #8a0000;
+      }
+      .edit-room-name {
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+      }
+      .edit-room-name:hover {
+        background-color: #e67e22;
+      }
+      .add-room-btn {
+    background-color: #2ecc71;
+  }
+  .add-room-btn:hover {
+    background-color: #27ae60;
+  }
+  .airbnb-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      </style>
+    </head>
+    <body>
+        <div class="header-image">
+            <div class="header-overlay">
+                <h1 class="header-title">BanKai Meet & Greet</h1>
+            </div>
+        </div>
+        <div class="container">
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h2>Friends</h2>
+                    <div id="friendCounter" class="friend-counter">Total Friends: 0</div>
+                    <form id="friendForm">
+                        <input type="text" id="friendName" placeholder="Enter friend's name" required>
+                        <button type="submit">Add Friend</button>
+                    </form>
+                    <ul id="friendList"></ul>
+                </div>
+                <div class="flex-item">
+                    <h2>Airbnb Houses</h2>
+                    <div id="airbnbCounter" class="airbnb-counter">Total Airbnb: 0</div>
+                    <form id="airbnbForm">
+                        <input type="text" id="airbnbName" placeholder="Enter Airbnb name" required>
+                        <input type="number" id="airbnbPrice" placeholder="Enter Airbnb price" required min="0" step="0.01">
+                        <button type="submit">Add Airbnb</button>
+                    </form>
+                    <ul id="airbnbList"></ul>
+                </div>
+            </div>
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h2>Airbnb Assignments</h2>
+                    <div id="airbnbAssignmentList"></div>
+                </div>
+            </div>
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h3>Room Occupancy</h3>
+                    <div class="chart-container">
+                        <canvas id="occupancyChart"></canvas>
+                    </div>
+                </div>
+                <div class="flex-item">
+                    <h3>Friends Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-representation-header">
+                <h2 class="visual-representation-title">Visual Representation</h2>
+                <p class="visual-representation-subtitle">An overview of Airbnb houses and room assignments</p>
+            </div>
+            <div id="visualRepresentation" class="visual-representation"></div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+        <script>
+            const friendForm = document.getElementById('friendForm');
+            const friendName = document.getElementById('friendName');
+            const friendList = document.getElementById('friendList');
+            const airbnbForm = document.getElementById('airbnbForm');
+            const airbnbName = document.getElementById('airbnbName');
+            const airbnbPrice = document.getElementById('airbnbPrice');
+            const airbnbList = document.getElementById('airbnbList');
+            const airbnbAssignmentList = document.getElementById('airbnbAssignmentList');
+            const visualRepresentation = document.getElementById('visualRepresentation');
+            const friendCounter = document.getElementById('friendCounter');
+            const airbnbCounter = document.getElementById('airbnbCounter');
+    
+            let friends = [];
+            let airbnbs = [];
+    
+            const roomTypes = ['bedroom', 'living-room', 'kitchen', 'bathroom', 'study'];
+    
+            function getRandomRoomType() {
+                return roomTypes[Math.floor(Math.random() * roomTypes.length)];
+            }
+    
+            function updateFriendCounter() {
+                friendCounter.textContent = `Total Friends: ${friends.length}`;
+            }
+
+            function updateairbnbCounter() {
+                airbnbCounter.textContent = `Total Airbnb: ${airbnbs.length}`;
+            }
+
+            function renderFriendList() {
+                friendList.innerHTML = '';
+                friends.forEach((friend, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'friend-item';
+                    li.setAttribute('draggable', 'true');
+                    li.setAttribute('data-friend-index', index);
+                    li.innerHTML = `
+                      <span class="drag-handle">☰</span>
+                      <span class="friend-name">${friend.name}</span>
+                      <span class="friend-assignment">
+                        ${friend.airbnbIndex !== null && friend.roomIndex !== null 
+                          ? `Assigned to ${airbnbs[friend.airbnbIndex].name} - ${airbnbs[friend.airbnbIndex].rooms[friend.roomIndex].name}`
+                          : 'Unassigned'}
+                      </span>
+                      <button class="remove-btn" data-index="${index}">Remove</button>
+                    `;
+                    friendList.appendChild(li);
+                });
+                updateFriendCounter();
+                renderAirbnbAssignments();
+                updateCharts();
+                renderVisualRepresentation();
+            }
+    
+            function renderAirbnbList() {
+                airbnbList.innerHTML = '';
+                airbnbs.forEach((airbnb, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                      ${airbnb.name} - $${airbnb.price}
+                      <div>
+                        <button class="remove-btn" data-index="${index}">Remove</button>
+                      </div>
+                    `;
+                    airbnbList.appendChild(li);
+                });
+                updateairbnbCounter();
+                renderFriendList();
+            }
+    
+            function renderAirbnbAssignments() {
+                airbnbAssignmentList.innerHTML = '';
+                airbnbs.forEach((airbnb, airbnbIndex) => {
+                    const airbnbDiv = document.createElement('div');
+                    airbnbDiv.className = 'airbnb-details';
+                    const assignedFriends = friends.filter(friend => friend.airbnbIndex === airbnbIndex);
+                    const pricePerFriend = assignedFriends.length > 0 ? (airbnb.price / assignedFriends.length).toFixed(2) : 0;
+                    airbnbDiv.innerHTML = `
+                      <div class="airbnb-header">
+                        <h3 class="airbnb-name">${airbnb.name} - $${airbnb.price}</h3>
+                        <button class="add-room-btn" data-index="${airbnbIndex}">Add Room</button>
+                      </div>
+                      <div class="room-list">
+                        ${airbnb.rooms.map((room, roomIndex) => `
+                          <div class="room-item">
+                            <div class="room-header">
+                              <span class="room-name">Room ${roomIndex + 1}: ${room.name}</span>
+                              <button class="edit-room-name" data-airbnb-index="${airbnbIndex}" data-room-index="${roomIndex}">Edit</button>
+                              <button class="remove-room" data-airbnb-index="${airbnbIndex}" data-room-index="${roomIndex}">Remove Room</button>
+                            </div>
+                            <div class="room-drop-zone" data-airbnb-index="${airbnbIndex}" data-room-index="${roomIndex}">
+                              ${friends.filter(friend => friend.airbnbIndex === airbnbIndex && friend.roomIndex === roomIndex)
+                                .map(friend => `<span class="occupant-tag">${friend.name} <button class="remove-from-room" data-friend-index="${friends.indexOf(friend)}">×</button></span>`)
+                                .join('')}
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                      <div class="price-info">
+                        Total Assigned: ${assignedFriends.length} | Price per Friend: $${pricePerFriend}
+                      </div>
+                    `;
+                    airbnbAssignmentList.appendChild(airbnbDiv);
+                });
+    
+                // Initialize drag and drop for friends
+                const friendItems = document.querySelectorAll('.friend-item');
+                friendItems.forEach(item => {
+                    item.addEventListener('dragstart', dragStart);
+                    item.addEventListener('dragend', dragEnd);
+                });
+    
+                // Initialize drop zones for rooms
+                const dropZones = document.querySelectorAll('.room-drop-zone');
+                dropZones.forEach(zone => {
+                    zone.addEventListener('dragover', dragOver);
+                    zone.addEventListener('dragenter', dragEnter);
+                    zone.addEventListener('dragleave', dragLeave);
+                    zone.addEventListener('drop', drop);
+                });
+            }
+    
+            function dragStart(e) {
+                e.dataTransfer.setData('text/plain', e.target.getAttribute('data-friend-index'));
+                setTimeout(() => {
+                    e.target.classList.add('dragging');
+                }, 0);
+            }
+    
+            function dragEnd(e) {
+                e.target.classList.remove('dragging');
+            }
+    
+            function dragOver(e) {
+                e.preventDefault();
+            }
+    
+            function dragEnter(e) {
+                e.preventDefault();
+                e.target.classList.add('dragover');
+            }
+    
+            function dragLeave(e) {
+                e.target.classList.remove('dragover');
+            }
+    
+            function drop(e) {
+                e.preventDefault();
+                const friendIndex = parseInt(e.dataTransfer.getData('text'));
+                const airbnbIndex = parseInt(e.target.getAttribute('data-airbnb-index'));
+                const roomIndex = parseInt(e.target.getAttribute('data-room-index'));
+    
+                friends[friendIndex].airbnbIndex = airbnbIndex;
+                friends[friendIndex].roomIndex = roomIndex;
+    
+                e.target.classList.remove('dragover');
+                saveData();
+                renderFriendList();
+            }
+    
+            const houseImages = [
+                'https://i.imgur.com/QhnCd2q.png',
+                'https://i.imgur.com/QhnCd2q.png',
+                'https://i.imgur.com/QhnCd2q.png'
+
+                ];
+
+                const roomImages = [
+                'https://i.imgur.com/PAYbjRB.png',
+                'https://i.imgur.com/PAYbjRB.png',
+                'https://i.imgur.com/PAYbjRB.png'
+
+                ];
+
+                function getRandomImage(images) {
+                    const randomIndex = Math.floor(Math.random() * images.length);
+                    return images[randomIndex];
+                }
+
+                function renderVisualRepresentation() {
+                visualRepresentation.innerHTML = '';
+                
+                airbnbs.forEach((airbnb, airbnbIndex) => {
+                    const houseDiv = document.createElement('div');
+                    houseDiv.className = 'house';
+                    
+                    const assignedFriends = friends.filter(friend => friend.airbnbIndex === airbnbIndex);
+                    const pricePerFriend = assignedFriends.length > 0 ? (airbnb.price / assignedFriends.length).toFixed(2) : 0;
+
+                    houseDiv.innerHTML = `
+                    <h3>${airbnb.name} - $${airbnb.price}</h3>
+                    <div class="house-image" style="background-image: url('${getRandomImage(houseImages)}')"></div>
+                    <div class="rooms">
+                        ${airbnb.rooms.map((room, roomIndex) => `
+                        <div class="room">
+                            <h4>${room.name}</h4>
+                            <div class="room-image" style="background-image: url('${getRandomImage(roomImages)}')"></div>
+                            <div class="occupants">
+                            ${friends.filter(friend => friend.airbnbIndex === airbnbIndex && friend.roomIndex === roomIndex)
+                                .map(friend => `
+                                <div class="occupant">
+                                <div class="occupant-avatar" style="background-image: url('https://cdn.discordapp.com/attachments/1003719854462881874/1252715041262932089/IMG_0444.png?ex=66a946cc&is=66a7f54c&hm=bc5ec446d6f0b08ddbc9e9449994e236bc8f01c8ed7113bebe5e0eee6cd380b3&')"></div>
+                                ${friend.name}
+                                </div>
+                                `)
+                                .join('')}
+                            </div>
+                        </div>
+                        `).join('')}
+                    </div>
+                    <div class="price-info">
+                        <div>Total Assigned: ${assignedFriends.length}</div>
+                        <div>Price per Friend: $${pricePerFriend}</div>
+                    </div>
+                    `;
+                    
+                    visualRepresentation.appendChild(houseDiv);
+                });
+            }
+            let occupancyChart, distributionChart;
+            function updateCharts() {
+                const occupancyData = airbnbs.flatMap(airbnb => 
+                    airbnb.rooms.map(room => {
+                    const occupants = friends.filter(friend => 
+                        friend.airbnbIndex === airbnbs.indexOf(airbnb) && 
+                        friend.roomIndex === airbnb.rooms.indexOf(room)
+                    ).length;
+                    return { 
+                        x: `${airbnb.name} - ${room.name}`, 
+                        y: occupants 
+                    };
+                    })
+                );
+
+                const distributionData = {
+                    assigned: friends.filter(friend => friend.airbnbIndex !== null && friend.roomIndex !== null).length,
+                    unassigned: friends.filter(friend => friend.airbnbIndex === null || friend.roomIndex === null).length
+                };
+
+                if (occupancyChart) {
+                    occupancyChart.data.labels = occupancyData.map(item => item.x);
+                    occupancyChart.data.datasets[0].data = occupancyData.map(item => item.y);
+                    occupancyChart.update();
+                } else {
+                    const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+                    occupancyChart = new Chart(occupancyCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: occupancyData.map(item => item.x),
+                        datasets: [{
+                        data: occupancyData.map(item => item.y),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)',
+                            'rgba(255, 159, 64, 0.6)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                        ],
+                        borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Room Occupancy'
+                        }
+                        }
+                    }
+                    });
+                }
+
+                if (distributionChart) {
+                    distributionChart.data.datasets[0].data = [distributionData.assigned, distributionData.unassigned];
+                    distributionChart.update();
+                } else {
+                    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+                    distributionChart = new Chart(distributionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Assigned', 'Unassigned'],
+                        datasets: [{
+                        data: [distributionData.assigned, distributionData.unassigned],
+                        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Friends Distribution'
+                        }
+                        }
+                    }
+                    });
+                }
+                }
+    
+            function loadData() {
+                const savedFriends = localStorage.getItem('friends');
+                const savedAirbnbs = localStorage.getItem('airbnbs');
+                if (savedFriends) friends = JSON.parse(savedFriends);
+                if (savedAirbnbs) airbnbs = JSON.parse(savedAirbnbs);
+                renderFriendList();
+                renderAirbnbList();
+            }
+    
+            function saveData() {
+                localStorage.setItem('friends', JSON.stringify(friends));
+                localStorage.setItem('airbnbs', JSON.stringify(airbnbs));
+            }
+    
+            friendForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const newFriend = {
+                    name: friendName.value,
+                    airbnbIndex: null,
+                    roomIndex: null
+                };
+                friends.push(newFriend);
+                friendName.value = '';
+                saveData();
+                renderFriendList();
+            });
+
+            airbnbList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    airbnbs.splice(index, 1);
+                    friends.forEach(friend => {
+                    if (friend.airbnbIndex === index) {
+                        friend.airbnbIndex = null;
+                        friend.roomIndex = null;
+                    } else if (friend.airbnbIndex > index) {
+                        friend.airbnbIndex--;
+                    }
+                    });
+                    renderAirbnbList();
+                    saveData();
+                }
+            });
+            
+            friendList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    friends.splice(index, 1);
+                    renderFriendList();
+                    saveData();
+                }
+            });
+
+            airbnbForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const newAirbnb = {
+                    name: airbnbName.value,
+                    price: parseFloat(airbnbPrice.value),
+                    rooms: [{ name: getRandomRoomType() }]
+                };
+                airbnbs.push(newAirbnb);
+                airbnbName.value = '';
+                airbnbPrice.value = '';
+                saveData();
+                renderAirbnbList();
+            });
+    
+            airbnbAssignmentList.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    airbnbs.splice(index, 1);
+                    saveData();
+                    renderAirbnbList();
+                } else if (e.target.classList.contains('add-room-btn')) {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    airbnbs[index].rooms.push({ name: getRandomRoomType() });
+                    saveData();
+                    renderAirbnbList();
+                } else if (e.target.classList.contains('edit-room-name')) {
+                    const airbnbIndex = parseInt(e.target.getAttribute('data-airbnb-index'));
+                    const roomIndex = parseInt(e.target.getAttribute('data-room-index'));
+                    const newName = prompt('Enter new room name:', airbnbs[airbnbIndex].rooms[roomIndex].name);
+                    if (newName) {
+                        airbnbs[airbnbIndex].rooms[roomIndex].name = newName;
+                        saveData();
+                        renderAirbnbList();
+                    }
+                } else if (e.target.classList.contains('remove-from-room')) {
+                    const friendIndex = parseInt(e.target.getAttribute('data-friend-index'));
+                    friends[friendIndex].airbnbIndex = null;
+                    friends[friendIndex].roomIndex = null;
+                    saveData();
+                    renderFriendList();
+                } else if (e.target.classList.contains('remove-room')) {
+                    const airbnbIndex = parseInt(e.target.getAttribute('data-airbnb-index'));
+                    const roomIndex = parseInt(e.target.getAttribute('data-room-index'));
+                    airbnbs[airbnbIndex].rooms.splice(roomIndex, 1);
+                    saveData();
+                    renderAirbnbList();
+                }
+            });
+    
+            document.addEventListener('DOMContentLoaded', loadData);
+        </script>
+    </body>
+    </html>
